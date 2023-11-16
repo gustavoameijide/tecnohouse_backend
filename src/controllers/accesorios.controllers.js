@@ -48,7 +48,7 @@ export const actualizarAccesorio = async (req, res) => {
   const { nombre, color, descripcion, categoria, stock } = req.body;
 
   const result = await pool.query(
-    "UPDATE accesorios SET nombre = $1, color = $2 ,stock = $3, categoria = $5, descripcion = $6 WHERE id = $7",
+    "UPDATE accesorios SET nombre = $1, color = $2 ,stock = $3, categoria = $4, descripcion = $5 WHERE id = $6",
     [nombre, color, stock, categoria, descripcion, id]
   );
 
