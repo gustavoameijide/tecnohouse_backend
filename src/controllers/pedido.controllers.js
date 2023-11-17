@@ -29,7 +29,7 @@ export const createPresupuesto = async (req, res, next) => {
 
   try {
     const result = await pool.query(
-      "INSERT INTO pedido (cliente, pedido,detalle user_id) VALUES ($1, $2, $3,$4,$5) RETURNING *",
+      "INSERT INTO pedido (cliente, pedido,detalle user_id) VALUES ($1, $2, $3,$4) RETURNING *",
       [cliente, pedido, detalle, req.userId]
     );
 
