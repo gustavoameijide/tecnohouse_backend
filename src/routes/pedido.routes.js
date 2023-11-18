@@ -7,11 +7,11 @@ import {
   eliminarPresupuesto,
 } from "../controllers/pedido.controllers.js";
 import { isAuth } from "../middlewares/auth.middleware.js";
-import { validateSchema } from "../middlewares/validate.middleware.js";
-import {
-  createPerfilSchema,
-  updatePerfilSchema,
-} from "../schemas/productos.schema.js";
+// import { validateSchema } from "../middlewares/validate.middleware.js";
+// import {
+//   createPerfilSchema,
+//   updatePerfilSchema,
+// } from "../schemas/productos.schema.js";
 
 const router = Router();
 
@@ -22,14 +22,14 @@ router.get("/pedido/:id", isAuth, getPresupuesto);
 router.post(
   "/pedido",
   isAuth,
-  validateSchema(createPerfilSchema),
+  // validateSchema(createPerfilSchema),
   createPresupuesto
 );
 
 router.put(
   "/pedido/:id",
   isAuth,
-  validateSchema(updatePerfilSchema),
+  // validateSchema(updatePerfilSchema),
   actualizarPresupuesto
 );
 

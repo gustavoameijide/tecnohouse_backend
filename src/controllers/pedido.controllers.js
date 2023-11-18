@@ -25,12 +25,12 @@ export const getPresupuesto = async (req, res) => {
 
 //crear pedido
 export const createPresupuesto = async (req, res, next) => {
-  const { cliente, pedido, detalle } = req.body;
+  const { cliente, productos, detalle } = req.body;
 
   try {
     const result = await pool.query(
-      "INSERT INTO pedido (cliente, pedido,detalle user_id) VALUES ($1, $2, $3,$4) RETURNING *",
-      [cliente, pedido, detalle, req.userId]
+      "INSERT INTO pedido (cliente, productos, detalle user_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      [cliente, productos, detalle, req.userId]
     );
 
     res.json(result.rows[0]);
@@ -47,11 +47,11 @@ export const createPresupuesto = async (req, res, next) => {
 //actualizar cliente
 export const actualizarPresupuesto = async (req, res) => {
   const id = req.params.id;
-  const { pedido } = req.body;
+  const { productos } = req.body;
 
   const result = await pool.query(
-    "UPDATE pedido SET pedido = $1 WHERE id = $2",
-    [pedido, id]
+    "UPDATE pedido SET productos = $1 WHERE id = $2",
+    [productos, id]
   );
 
   if (result.rowCount === 0) {
