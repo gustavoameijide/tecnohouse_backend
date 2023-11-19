@@ -89,7 +89,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
     const result = await pool.query(
       "UPDATE pedido SET productos = productos #- '{respuesta, " +
         idToDelete +
-        "}' WHERE productos @> $1",
+        "}' WHERE productos = $1",
       [`{"respuesta": [{"id": ${idToDelete}}]}`]
     );
 
