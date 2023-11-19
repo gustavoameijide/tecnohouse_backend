@@ -87,7 +87,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   try {
     // Fetch the current JSON data from the database
     const result = await pool.query(
-      "SELECT productos FROM pedido WHERE productos @> $1",
+      "SELECT productos FROM pedido WHERE productos = $1",
       [`{"respuesta": [{"id": ${productIdToDelete}}]}`]
     );
 
@@ -105,7 +105,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
     );
 
     // Update the database with the modified JSON
-    await pool.query("UPDATE pedido SET productos = $1 WHERE productos @> $2", [
+    await pool.query("UPDATE pedido SET productos = $1 WHERE productos =s $2", [
       JSON.stringify({ respuesta: updatedRespuesta }),
       `{"respuesta": [{"id": ${productIdToDelete}}]}`,
     ]);
