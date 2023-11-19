@@ -98,7 +98,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
       });
     }
 
-    const existingJson = result.rows[0].tu_columna_json;
+    const existingJson = result.rows[0].productos;
 
     // Remove the item with the specified id from the array
     const updatedRespuesta = existingJson.respuesta.filter(
@@ -112,6 +112,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
     ]);
 
     pool.release();
+
     return res.sendStatus(204);
   } catch (error) {
     console.error("Error during delete operation:", error);
