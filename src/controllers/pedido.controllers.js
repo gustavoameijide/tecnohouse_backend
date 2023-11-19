@@ -87,7 +87,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   try {
     // Update the database to remove the item at the specified position from the "respuesta" array
     const result = await pool.query(
-      "UPDATE pedido SET productos = jsonb_set(productos, '{\"respuesta\"}', (productos->'respuesta') - $1) WHERE productos @> $2",
+      "UPDATE pedido SET productos = jsonb_set(productos, '{\"respuesta\"}', (productos->'respuesta') - $1) WHERE productos > $2",
       [positionToDelete, `{"respuesta": [{"id": ${positionToDelete}}]}`]
     );
 
