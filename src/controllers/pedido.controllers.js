@@ -82,18 +82,18 @@ export const eliminarPresupuesto = async (req, res) => {
 
 //actualizar eliminar
 export const eliminarPresupuestoProducto = async (req, res) => {
-  const productIdToDelete = req.params.id;
+  const positionToDelete = req.params.position;
 
   try {
-    // Update the database to remove the item with the specified id from the "respuesta" array
+    // Update the database to remove the item at the specified position from the "respuesta" array
     const result = await pool.query(
       "UPDATE pedido SET productos = jsonb_set(productos, '{\"respuesta\"}', (productos->'respuesta') - $1) WHERE productos @> $2",
-      [productIdToDelete, `{"respuesta": [{"id": ${productIdToDelete}}]}`]
+      [positionToDelete, `{"respuesta": [{"id": ${positionToDelete}}]}`]
     );
 
     if (result.rowCount === 0) {
       return res.status(404).json({
-        message: "No existe ningún producto con ese id",
+        message: "No existe ningún producto en esa posición",
       });
     }
 
