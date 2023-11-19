@@ -35,7 +35,7 @@ router.put(
 );
 
 router.delete(
-  "/pedido-delete",
+  "/pedido-delete/:id",
   isAuth,
   // validateSchema(updatePerfilSchema),
   eliminarPresupuestoProducto
