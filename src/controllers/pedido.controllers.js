@@ -85,7 +85,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   const productIdToDelete = req.params.id;
 
   const result = await client.query(
-    "SELECT pedido FROM productos WHERE productos->'respuesta' @> $1",
+    "SELECT pedido FROM productos WHERE respuesta->'respuesta' @> $1",
     [`[{"id": ${productIdToDelete}}]`]
   );
 
@@ -104,7 +104,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   );
 
   await client.query(
-    "UPDATE pedido SET productos = $1 WHERE productos->'respuesta' @> $2",
+    "UPDATE pedido SET productos = $1 WHERE respuesta->'respuesta' @> $2",
     [
       JSON.stringify({ respuesta: updatedJson }),
       `[{"id": ${productIdToDelete}}]`,
