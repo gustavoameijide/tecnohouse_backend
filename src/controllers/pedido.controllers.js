@@ -87,8 +87,8 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   try {
     // Fetch the current JSON data from the database
     const result = await pool.query(
-      "SELECT productos FROM pedido WHERE productos->'respuesta' @> $1",
-      [`[{"id": ${productIdToDelete}}]`]
+      "SELECT productos FROM pedido WHERE productos @> $1",
+      [`{"respuesta": [{"id": ${productIdToDelete}}]}`]
     );
 
     if (result.rows.length === 0) {
@@ -101,18 +101,15 @@ export const eliminarPresupuestoProducto = async (req, res) => {
     const existingJson = result.rows[0].tu_columna_json;
 
     // Remove the item with the specified id from the array
-    const updatedJson = existingJson.respuesta.filter(
+    const updatedRespuesta = existingJson.respuesta.filter(
       (item) => item.id !== parseInt(productIdToDelete)
     );
 
     // Update the database with the modified JSON
-    await pool.query(
-      "UPDATE pedido SET productos = $1 WHERE productos->'respuesta' @> $2",
-      [
-        JSON.stringify({ respuesta: updatedJson }),
-        `[{"id": ${productIdToDelete}}]`,
-      ]
-    );
+    await pool.query("UPDATE pedido SET productos = $1 WHERE productos @> $2", [
+      JSON.stringify({ respuesta: updatedRespuesta }),
+      `{"respuesta": [{"id": ${productIdToDelete}}]}`,
+    ]);
 
     pool.release();
     return res.sendStatus(204);
