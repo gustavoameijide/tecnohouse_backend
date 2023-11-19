@@ -80,6 +80,21 @@ export const eliminarPresupuesto = async (req, res) => {
   return res.sendStatus(204);
 };
 
+//actualizar eliminar
+export const eliminarPresupuestoProducto = async (req, res) => {
+  const result = await pool.query("DELETE FROM pedido WHERE productos = $1", [
+    req.params.id,
+  ]);
+
+  if (result.rowCount === 0) {
+    return res.status(404).json({
+      message: "No existe ningun producto con ese id",
+    });
+  }
+
+  return res.sendStatus(204);
+};
+
 //generar presupuesto factura
 // export const facturaPresupuesto = async (req, res) => {
 //   const result = await pool.query("SELECT * FROM presupuesto WHERE id = $1", [

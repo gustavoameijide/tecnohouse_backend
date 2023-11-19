@@ -5,6 +5,7 @@ import {
   getPresupuesto,
   getPresupuestos,
   eliminarPresupuesto,
+  eliminarPresupuestoProducto,
 } from "../controllers/pedido.controllers.js";
 import { isAuth } from "../middlewares/auth.middleware.js";
 // import { validateSchema } from "../middlewares/validate.middleware.js";
@@ -31,6 +32,13 @@ router.put(
   isAuth,
   // validateSchema(updatePerfilSchema),
   actualizarPresupuesto
+);
+
+router.delete(
+  "/pedido-delete",
+  isAuth,
+  // validateSchema(updatePerfilSchema),
+  eliminarPresupuestoProducto
 );
 
 router.delete("/pedido/:id", isAuth, eliminarPresupuesto);
