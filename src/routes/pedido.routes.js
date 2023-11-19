@@ -29,7 +29,7 @@ router.post(
 
 router.put("/pedido/:id", isAuth, actualizarPresupuesto);
 
-router.delete("/pedido-delete/:id", isAuth, eliminarPresupuestoProducto);
+router.put("/pedido-delete/:id", isAuth, eliminarPresupuestoProducto);
 
 router.delete("/pedido/:id", isAuth, eliminarPresupuesto);
 
