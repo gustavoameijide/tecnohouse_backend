@@ -92,7 +92,6 @@ export const eliminarPresupuestoProducto = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      pool.release();
       return res.status(404).json({
         message: "No existe ningún producto con ese id",
       });
@@ -110,8 +109,6 @@ export const eliminarPresupuestoProducto = async (req, res) => {
       JSON.stringify({ respuesta: updatedRespuesta }),
       `{"respuesta": [{"id": ${productIdToDelete}}]}`,
     ]);
-
-    pool.release();
 
     return res.sendStatus(204);
   } catch (error) {
