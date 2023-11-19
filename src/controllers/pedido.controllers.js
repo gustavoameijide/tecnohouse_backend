@@ -85,51 +85,24 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   const productIdToDelete = req.params.id;
 
   try {
-    // Fetch the current JSON data from the database
+    // Update the database to remove the item with the specified id from the "respuesta" array
     const result = await pool.query(
-      "SELECT productos FROM pedido WHERE productos @> $1",
-      [`{"respuesta": [{"id": ${productIdToDelete}}]}`]
+      "UPDATE pedido SET productos = jsonb_set(productos, '{\"respuesta\"}', (productos->'respuesta') - $1) WHERE productos @> $2",
+      [productIdToDelete, `{"respuesta": [{"id": ${productIdToDelete}}]}`]
     );
 
-    if (result.rows.length === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({
         message: "No existe ningún producto con ese id",
       });
     }
-
-    const existingJson = result.rows[0].productos;
-
-    // Remove the item with the specified id from the array
-    const updatedRespuesta = existingJson.respuesta.filter(
-      (item) => item.id !== parseInt(productIdToDelete)
-    );
-
-    // Update the database with the modified JSON
-    await pool.query("UPDATE pedido SET productos = $1 WHERE productos @> $2", [
-      JSON.stringify({ respuesta: updatedRespuesta }),
-      `{"respuesta": [{"id": ${productIdToDelete}}]}`,
-    ]);
 
     return res.sendStatus(204);
   } catch (error) {
     console.error("Error during delete operation:", error);
     return res.status(500).json({
       message: "Error interno del servidor",
+      error: error.message,
     });
   }
 };
-
-//generar presupuesto factura
-// export const facturaPresupuesto = async (req, res) => {
-//   const result = await pool.query("SELECT * FROM presupuesto WHERE id = $1", [
-//     req.params.id,
-//   ]);
-
-//   if (result.rowCount === 0) {
-//     return res.status(404).json({
-//       message: "No existe ningun presupuestro con ese id",
-//     });
-//   }
-
-//   return res.json(result.rows[0]);
-// };
