@@ -82,9 +82,14 @@ export const eliminarPresupuesto = async (req, res) => {
 
 //actualizar eliminar
 export const eliminarPresupuestoProducto = async (req, res) => {
+  const productIdToDelete = req.params.id;
+
   const result = await pool.query(
-    "DELETE FROM pedido WHERE productos ->> id = $1",
-    [req.params.id]
+    "UPDATE pedido SET productos = $1 WHERE productos->'respuesta' @> $2",
+    [
+      JSON.stringify({ respuesta: updatedJson }),
+      `[{"id": ${productIdToDelete}}]`,
+    ]
   );
 
   if (result.rowCount === 0) {
