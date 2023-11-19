@@ -84,13 +84,34 @@ export const eliminarPresupuesto = async (req, res) => {
 export const eliminarPresupuestoProducto = async (req, res) => {
   const productIdToDelete = req.params.id;
 
-  const result = await pool.query(
+  const result = await client.query(
+    "SELECT pedido FROM productos WHERE productos->'respuesta' @> $1",
+    [`[{"id": ${productIdToDelete}}]`]
+  );
+
+  if (result.rows.length === 0) {
+    client.release();
+    return res.status(404).json({
+      message: "No existe ningún producto con ese id",
+    });
+  }
+
+  const existingJson = result.rows[0].tu_columna_json;
+
+  // Remove the item with the specified id from the array
+  const updatedJson = existingJson.respuesta.filter(
+    (item) => item.id !== parseInt(productIdToDelete)
+  );
+
+  await client.query(
     "UPDATE pedido SET productos = $1 WHERE productos->'respuesta' @> $2",
     [
       JSON.stringify({ respuesta: updatedJson }),
       `[{"id": ${productIdToDelete}}]`,
     ]
   );
+
+  client.release();
 
   if (result.rowCount === 0) {
     return res.status(404).json({
