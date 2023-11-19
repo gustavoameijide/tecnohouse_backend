@@ -84,41 +84,44 @@ export const eliminarPresupuesto = async (req, res) => {
 export const eliminarPresupuestoProducto = async (req, res) => {
   const productIdToDelete = req.params.id;
 
-  const result = await pool.query(
-    "SELECT pedido FROM productos WHERE productos->'respuesta' @> $1",
-    [`[{"id": ${productIdToDelete}}]`]
-  );
+  try {
+    // Fetch the current JSON data from the database
+    const result = await pool.query(
+      "SELECT productos FROM pedido WHERE productos->'respuesta' @> $1",
+      [`[{"id": ${productIdToDelete}}]`]
+    );
 
-  if (result.rows.length === 0) {
-    return res.status(404).json({
-      message: "No existe ningún producto con ese id",
+    if (result.rows.length === 0) {
+      pool.release();
+      return res.status(404).json({
+        message: "No existe ningún producto con ese id",
+      });
+    }
+
+    const existingJson = result.rows[0].tu_columna_json;
+
+    // Remove the item with the specified id from the array
+    const updatedJson = existingJson.respuesta.filter(
+      (item) => item.id !== parseInt(productIdToDelete)
+    );
+
+    // Update the database with the modified JSON
+    await pool.query(
+      "UPDATE pedido SET productos = $1 WHERE productos->'respuesta' @> $2",
+      [
+        JSON.stringify({ respuesta: updatedJson }),
+        `[{"id": ${productIdToDelete}}]`,
+      ]
+    );
+
+    pool.release();
+    return res.sendStatus(204);
+  } catch (error) {
+    console.error("Error during delete operation:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
     });
   }
-
-  // const existingJson = result.rows[0].;
-
-  // Remove the item with the specified id from the array
-  const updatedJson = existingJson.respuesta.filter(
-    (item) => item.id !== parseInt(productIdToDelete)
-  );
-
-  await pool.query(
-    "UPDATE pedido SET productos = $1 WHERE productos->'respuesta' @> $2",
-    [
-      JSON.stringify({ respuesta: updatedJson }),
-      `[{"id": ${productIdToDelete}}]`,
-    ]
-  );
-
-  pool.release();
-
-  if (result.rowCount === 0) {
-    return res.status(404).json({
-      message: "No existe ningun producto con ese id",
-    });
-  }
-
-  return res.sendStatus(204);
 };
 
 //generar presupuesto factura
