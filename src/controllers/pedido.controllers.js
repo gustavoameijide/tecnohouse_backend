@@ -85,37 +85,40 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   const productIdToDelete = req.params.id;
 
   try {
-    // Fetch the current JSON data from the database
+    // Obtener los datos JSONB actuales de la base de datos
     const result = await pool.query(
-      "SELECT productos FROM pedido WHERE productos = $1",
+      "SELECT respuesta FROM productos WHERE respuesta @> $1",
       [`{"respuesta": [{"id": ${productIdToDelete}}]}`]
     );
 
     if (result.rows.length === 0) {
-      pool.release();
       return res.status(404).json({
         message: "No existe ningún producto con ese id",
       });
     }
 
-    const existingJson = result.rows[0].productos;
-    // Remove the item with the specified id from the array
+    const existingJson = result.rows[0].respuesta;
+
+    // Filtrar el elemento con el id especificado del array
     const updatedRespuesta = existingJson.respuesta.filter(
       (item) => item.id !== parseInt(productIdToDelete)
     );
 
-    // Update the database with the modified JSON
-    await pool.query("UPDATE pedido SET productos = $1 WHERE productos =s $2", [
-      JSON.stringify({ respuesta: updatedRespuesta }),
-      `{"respuesta": [{"id": ${productIdToDelete}}]}`,
-    ]);
+    // Actualizar la base de datos con el JSON modificado
+    await pool.query(
+      "UPDATE productos SET respuesta = jsonb_set(respuesta, '{respuesta}', $1) WHERE respuesta @> $2",
+      [
+        JSON.stringify({ respuesta: updatedRespuesta }),
+        `{"respuesta": [{"id": ${productIdToDelete}}]}`,
+      ]
+    );
 
-    pool.release();
     return res.sendStatus(204);
   } catch (error) {
-    console.error("Error during delete operation:", error);
+    console.error("Error durante la operación de eliminación:", error);
     return res.status(500).json({
       message: "Error interno del servidor",
+      error: error.message,
     });
   }
 };
