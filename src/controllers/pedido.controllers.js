@@ -165,7 +165,6 @@ export const editarPresupuestoProducto = async (req, res) => {
 
 export const obtenerValorUnico = async (req, res) => {
   const productId = req.params.id;
-  const fieldName = req.params.field; // Suponiendo que recibes el nombre del campo en los parámetros
 
   try {
     // Obtener los datos JSONB actuales de la base de datos
@@ -182,22 +181,18 @@ export const obtenerValorUnico = async (req, res) => {
 
     const existingJson = result.rows[0].productos;
 
-    // Buscar el valor específico en el array de respuesta
-    const product = existingJson.respuesta.find(
-      (item) => item.id === parseInt(productId)
-    );
+    // En este ejemplo, asumiré que deseas obtener el valor del campo "nombre"
+    const fieldValue = existingJson.respuesta[0]?.nombre;
 
-    if (!product) {
+    if (!fieldValue) {
       return res.status(404).json({
-        message: "No existe ningún producto con ese id",
+        message: "No existe ningún valor para el campo especificado",
       });
     }
 
-    // Obtener el valor específico del campo deseado
-    const fieldValue = product[fieldName];
-
+    // Devolver el valor específico
     return res.json({
-      [fieldName]: fieldValue,
+      valorUnico: fieldValue,
     });
   } catch (error) {
     console.error("Error durante la operación de obtención del valor:", error);

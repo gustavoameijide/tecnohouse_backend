@@ -37,6 +37,6 @@ router.put("/pedido-edit/:id", isAuth, editarPresupuestoProducto);
 
 router.delete("/pedido/:id", isAuth, eliminarPresupuesto);
 
-router.get("/pedido-unico/:id/:field", isAuth, obtenerValorUnico);
+router.get("/pedido-unico/:id", isAuth, obtenerValorUnico);
 
 export default router;
