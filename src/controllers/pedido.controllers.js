@@ -202,7 +202,6 @@ export const obtenerValorUnico = async (req, res) => {
     });
   }
 };
-
 export const CrearProducto = async (req, res) => {
   const tableId = req.params.id;
   const nuevoProducto = req.body.nuevoProducto;
@@ -222,10 +221,11 @@ export const CrearProducto = async (req, res) => {
 
     const existingJson = result.rows[0].productos;
 
-    // Verificar que existingJson y existingJson.respuesta son arrays válidos
+    // Verificar que existingJson es un objeto y tiene la propiedad "respuesta" que es un array
     if (
-      !Array.isArray(existingJson) ||
-      !existingJson.every((item) => item && typeof item === "object")
+      !existingJson ||
+      !existingJson.respuesta ||
+      !Array.isArray(existingJson.respuesta)
     ) {
       return res.status(500).json({
         message: "La estructura del campo productos no es válida",
