@@ -219,19 +219,23 @@ export const CrearProducto = async (req, res) => {
         message: "No existe ningún registro con ese id de tabla",
       });
     }
+
     const existingJson = result.rows[0].productos;
 
-    if (existingJson === null) {
-      // Manejar el caso cuando la columna productos es NULL
-      return res.status(404).json({
-        message: "El campo productos es NULL para el registro encontrado.",
+    // Verificar que existingJson y existingJson.respuesta son arrays válidos
+    if (
+      !Array.isArray(existingJson) ||
+      !existingJson.every((item) => item && typeof item === "object")
+    ) {
+      return res.status(500).json({
+        message: "La estructura del campo productos no es válida",
       });
     }
 
     // Agregar el nuevo producto al array existente
     const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
 
-    // Actualizar la base de datos con el JSON modificado
+    // Actualizar la base de datos con el JSON completo
     await pool.query(
       "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *",
       [{ respuesta: updatedProductos }, tableId]
