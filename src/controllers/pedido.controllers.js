@@ -227,7 +227,7 @@ export const CrearProducto = async (req, res) => {
 
     // Actualizar la base de datos con el JSON modificado
     await pool.query(
-      "UPDATE pedido SET productos = $1::jsonb_set WHERE id = $2 RETURNING *",
+      "UPDATE pedido SET productos = $1::jsonb_object WHERE id = $2 RETURNING *",
       [{ respuesta: updatedProductos }, tableId]
     );
 
