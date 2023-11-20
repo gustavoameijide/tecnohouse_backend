@@ -219,8 +219,14 @@ export const CrearProducto = async (req, res) => {
         message: "No existe ningún registro con ese id de tabla",
       });
     }
-
     const existingJson = result.rows[0].productos;
+
+    if (existingJson === null) {
+      // Manejar el caso cuando la columna productos es NULL
+      return res.status(404).json({
+        message: "El campo productos es NULL para el registro encontrado.",
+      });
+    }
 
     // Agregar el nuevo producto al array existente
     const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
