@@ -205,7 +205,7 @@ export const obtenerValorUnico = async (req, res) => {
 
 export const CrearProducto = async (req, res) => {
   const tableId = req.params.id;
-  const nuevoValor = req.body.nuevoValor;
+  const nuevoProducto = req.body.nuevoProducto;
 
   try {
     // Obtener los datos JSONB actuales de la base de datos
@@ -223,7 +223,7 @@ export const CrearProducto = async (req, res) => {
     const existingJson = result.rows[0].productos;
 
     // Agregar el nuevo producto al array existente
-    const updatedProductos = existingJson.respuesta.concat(nuevoValor);
+    const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
 
     // Actualizar la base de datos con el JSON modificado
     await pool.query(
