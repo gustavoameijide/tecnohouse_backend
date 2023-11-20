@@ -235,12 +235,17 @@ export const CrearProducto = async (req, res) => {
     }
 
     // Agregar el nuevo producto al array existente
-    const updatedRespuesta = existingJson.respuesta.concat(nuevoProducto);
+    const updatedRespuesta = [...existingJson.respuesta, nuevoProducto];
+
+    // Construir el nuevo objeto JSON
+    const updatedJson = {
+      respuesta: updatedRespuesta,
+    };
 
     // Actualizar la base de datos con el JSON completo
     await pool.query(
-      "UPDATE pedido SET productos = productos || $1::jsonb WHERE id = $2 RETURNING *",
-      [updatedRespuesta, tableId]
+      "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *",
+      [updatedJson, tableId]
     );
 
     return res.json({
