@@ -236,16 +236,10 @@ export const CrearProducto = async (req, res) => {
 
     // Verificar que el nuevo producto no sea null y sea un objeto
     if (nuevoProducto && typeof nuevoProducto === "object") {
-      // Construir un nuevo array respuesta con el nuevo producto
-      const updatedRespuesta = [
-        ...(existingJson.respuesta || []),
-        nuevoProducto,
-      ];
-
-      // Actualizar la base de datos con el nuevo array respuesta
+      // Actualizar la base de datos con el nuevo producto
       await pool.query(
-        "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *",
-        [{ respuesta: updatedRespuesta }, tableId]
+        "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', COALESCE(productos->'respuesta', '[]') || $1::jsonb) WHERE id = $2 RETURNING *",
+        [nuevoProducto, tableId]
       );
 
       return res.json({
