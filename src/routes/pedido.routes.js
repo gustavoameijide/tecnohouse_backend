@@ -35,6 +35,6 @@ router.delete("/pedido/:id", isAuth, eliminarPresupuesto);
 
 router.get("/pedido-unico/:id", isAuth, obtenerValorUnico);
 
-router.post("/pedido-create", isAuth, CrearProducto);
+router.post("/:id/pedido-create", isAuth, CrearProducto);
 
 export default router;

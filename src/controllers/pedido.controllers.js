@@ -204,46 +204,41 @@ export const obtenerValorUnico = async (req, res) => {
 };
 
 export const CrearProducto = async (req, res) => {
+  const tableId = req.params.id;
   const nuevoValor = req.body.nuevoValor;
 
   try {
-    const createResult = await pool.query(
-      "INSERT INTO pedido (productos) VALUES (jsonb_build_array($1::jsonb)) RETURNING *",
-      [nuevoValor]
+    // Obtener los datos JSONB actuales de la base de datos
+    const result = await pool.query(
+      "SELECT productos FROM pedido WHERE id = $1",
+      [tableId]
     );
 
-    const nuevoRegistro = createResult.rows[0];
-
-    return res.json({
-      message: "Nuevo producto creado exitosamente",
-      nuevoRegistro,
-    });
-  } catch (error) {
-    // Si ocurre un error al insertar, intentaremos actualizar el producto existente
-    console.error("Error durante la operación de creación de producto:", error);
-
-    try {
-      const updateResult = await pool.query(
-        "UPDATE pedido SET productos = productos || $1::jsonb WHERE (productos->'respuesta')::jsonb @> $2 RETURNING *",
-        [nuevoValor, `[{ "id": ${nuevoValor.id} }]`]
-      );
-
-      const productoActualizado = updateResult.rows[0];
-
-      return res.json({
-        message: "Producto actualizado exitosamente",
-        productoActualizado,
-      });
-    } catch (updateError) {
-      console.error(
-        "Error durante la operación de actualización de producto:",
-        updateError
-      );
-
-      return res.status(500).json({
-        message: "Error interno del servidor",
-        error: updateError.message,
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "No existe ningún registro con ese id de tabla",
       });
     }
+
+    const existingJson = result.rows[0].productos;
+
+    // Agregar el nuevo producto al array existente
+    const updatedProductos = existingJson.respuesta.concat(nuevoValor);
+
+    // Actualizar la base de datos con el JSON modificado
+    await pool.query(
+      "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1) WHERE id = $2 RETURNING *",
+      [JSON.stringify({ respuesta: updatedProductos }), tableId]
+    );
+
+    return res.json({
+      message: "Producto agregado exitosamente al registro existente",
+    });
+  } catch (error) {
+    console.error("Error durante la operación de creación de producto:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
   }
 };
