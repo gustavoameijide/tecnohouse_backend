@@ -202,6 +202,7 @@ export const obtenerValorUnico = async (req, res) => {
     });
   }
 };
+
 export const CrearProducto = async (req, res) => {
   const tableId = req.params.id;
   const nuevoProducto = req.body.nuevoProducto;
@@ -229,16 +230,17 @@ export const CrearProducto = async (req, res) => {
     ) {
       return res.status(500).json({
         message: "La estructura del campo productos no es válida",
+        existingJson: existingJson,
       });
     }
 
     // Agregar el nuevo producto al array existente
-    const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
+    const updatedRespuesta = [...existingJson.respuesta, nuevoProducto];
 
     // Actualizar la base de datos con el JSON completo
     await pool.query(
-      "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *",
-      [{ respuesta: updatedProductos }, tableId]
+      "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1::jsonb) WHERE id = $2 RETURNING *",
+      [updatedRespuesta, tableId]
     );
 
     return res.json({
