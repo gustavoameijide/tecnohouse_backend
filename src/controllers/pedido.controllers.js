@@ -101,7 +101,7 @@ export const eliminarPresupuestoProducto = async (req, res) => {
 
     // Filtrar el elemento con el id especificado del array
     const updatedProductos = existingJson.respuesta.filter(
-      (item) => item.id !== parseInt(productIdToDelete)
+      (item) => item.id !== productIdToDelete
     );
 
     // Actualizar la base de datos con el JSON modificado
