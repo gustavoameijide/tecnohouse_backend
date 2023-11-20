@@ -120,17 +120,45 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   }
 };
 
-//generar presupuesto factura
-// export const facturaPresupuesto = async (req, res) => {
-//   const result = await pool.query("SELECT * FROM presupuesto WHERE id = $1", [
-//     req.params.id,
-//   ]);
+export const editarPresupuestoProducto = async (req, res) => {
+  const productIdToEdit = req.params.id;
+  const updatedProductData = req.body; // Suponiendo que recibes los nuevos datos del producto en el cuerpo de la solicitud
 
-//   if (result.rowCount === 0) {
-//     return res.status(404).json({
-//       message: "No existe ningun presupuestro con ese id",
-//     });
-//   }
+  try {
+    // Obtener los datos JSONB actuales de la base de datos
+    const result = await pool.query(
+      "SELECT productos FROM pedido WHERE (productos->'respuesta')::jsonb @> $1",
+      [`[{"id": ${productIdToEdit}}]`]
+    );
 
-//   return res.json(result.rows[0]);
-// };
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "No existe ningún producto con ese id",
+      });
+    }
+
+    const existingJson = result.rows[0].productos;
+
+    // Actualizar el elemento con el id especificado en el array con los nuevos datos
+    const updatedProductos = existingJson.respuesta.map((item) => {
+      if (item.id === parseInt(productIdToEdit)) {
+        return { ...item, ...updatedProductData };
+      }
+      return item;
+    });
+
+    // Actualizar la base de datos con el JSON modificado
+    await pool.query(
+      "UPDATE pedido SET productos = $1 WHERE (productos->'respuesta')::jsonb @> $2",
+      [{ respuesta: updatedProductos }, `[{ "id": ${productIdToEdit} }]`]
+    );
+
+    return res.sendStatus(204);
+  } catch (error) {
+    console.error("Error durante la operación de edición:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+};

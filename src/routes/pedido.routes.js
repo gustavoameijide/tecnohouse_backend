@@ -6,6 +6,7 @@ import {
   getPresupuestos,
   eliminarPresupuesto,
   eliminarPresupuestoProducto,
+  editarPresupuestoProducto,
 } from "../controllers/pedido.controllers.js";
 import { isAuth } from "../middlewares/auth.middleware.js";
 // import { validateSchema } from "../middlewares/validate.middleware.js";
@@ -30,6 +31,8 @@ router.post(
 router.put("/pedido/:id", isAuth, actualizarPresupuesto);
 
 router.delete("/pedido-delete/:id", isAuth, eliminarPresupuestoProducto);
+
+router.put("/pedido-edit/:id", isAuth, editarPresupuestoProducto);
 
 router.delete("/pedido/:id", isAuth, eliminarPresupuesto);
 
