@@ -235,7 +235,7 @@ export const CrearProducto = async (req, res) => {
     }
 
     // Verificar que el nuevo producto no sea null y sea un objeto
-    if (nuevoProducto && typeof nuevoProducto === "object") {
+    if (nuevoProducto && typeof nuevoProducto === "json") {
       // Concatenar el nuevo producto al final del array respuesta
       const updatedRespuesta = existingJson.respuesta || [];
       updatedRespuesta.push(nuevoProducto);
