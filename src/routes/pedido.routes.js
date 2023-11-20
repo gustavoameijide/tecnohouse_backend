@@ -7,6 +7,7 @@ import {
   eliminarPresupuesto,
   eliminarPresupuestoProducto,
   editarPresupuestoProducto,
+  obtenerValorUnico,
 } from "../controllers/pedido.controllers.js";
 import { isAuth } from "../middlewares/auth.middleware.js";
 // import { validateSchema } from "../middlewares/validate.middleware.js";
@@ -35,5 +36,7 @@ router.delete("/pedido-delete/:id", isAuth, eliminarPresupuestoProducto);
 router.put("/pedido-edit/:id", isAuth, editarPresupuestoProducto);
 
 router.delete("/pedido/:id", isAuth, eliminarPresupuesto);
+
+router.get("/pedido-unico/:id/:field", isAuth, obtenerValorUnico);
 
 export default router;

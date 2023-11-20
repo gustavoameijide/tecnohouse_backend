@@ -162,3 +162,48 @@ export const editarPresupuestoProducto = async (req, res) => {
     });
   }
 };
+
+export const obtenerValorUnico = async (req, res) => {
+  const productId = req.params.id;
+  const fieldName = req.params.field; // Suponiendo que recibes el nombre del campo en los parámetros
+
+  try {
+    // Obtener los datos JSONB actuales de la base de datos
+    const result = await pool.query(
+      "SELECT productos FROM pedido WHERE (productos->'respuesta')::jsonb @> $1",
+      [`[{"id": ${productId}}]`]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "No existe ningún producto con ese id",
+      });
+    }
+
+    const existingJson = result.rows[0].productos;
+
+    // Buscar el valor específico en el array de respuesta
+    const product = existingJson.respuesta.find(
+      (item) => item.id === parseInt(productId)
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        message: "No existe ningún producto con ese id",
+      });
+    }
+
+    // Obtener el valor específico del campo deseado
+    const fieldValue = product[fieldName];
+
+    return res.json({
+      [fieldName]: fieldValue,
+    });
+  } catch (error) {
+    console.error("Error durante la operación de obtención del valor:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+};
