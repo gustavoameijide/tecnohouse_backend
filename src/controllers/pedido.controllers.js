@@ -202,3 +202,50 @@ export const obtenerValorUnico = async (req, res) => {
     });
   }
 };
+
+export const CrearProducto = async (req, res) => {
+  const productId = req.params.id;
+  const nuevoValor = req.body.nuevoValor;
+
+  try {
+    // Check if the product with the given ID exists
+    const result = await pool.query(
+      "SELECT productos FROM pedido WHERE (productos->'respuesta')::jsonb @> $1",
+      [`[{"id": ${productId}}]`]
+    );
+
+    if (result.rows.length === 0) {
+      // If the product doesn't exist, create a new one
+      const createResult = await pool.query(
+        "INSERT INTO pedido (productos) VALUES ($1) RETURNING *",
+        [{ respuesta: [{ id: productId, nombre: nuevoValor }] }]
+      );
+
+      const nuevoRegistro = createResult.rows[0];
+
+      return res.json({
+        message: "Nuevo producto creado exitosamente",
+        nuevoRegistro,
+      });
+    }
+
+    // If the product exists, update the existing product
+    const updateResult = await pool.query(
+      "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta,0,nombre}', $1) WHERE (productos->'respuesta')::jsonb @> $2 RETURNING *",
+      [nuevoValor, `[{"id": ${productId}}]`]
+    );
+
+    const productoActualizado = updateResult.rows[0];
+
+    return res.json({
+      message: "Producto actualizado exitosamente",
+      productoActualizado,
+    });
+  } catch (error) {
+    console.error("Error during product update/creation operation:", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
