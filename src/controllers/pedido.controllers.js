@@ -87,8 +87,8 @@ export const eliminarPresupuestoProducto = async (req, res) => {
   try {
     // Obtener los datos JSONB actuales de la base de datos
     const result = await pool.query(
-      "SELECT productos FROM pedido WHERE productos @> $1",
-      [`{"respuesta": [{"id": ${productIdToDelete}}]}`]
+      "SELECT productos FROM pedido WHERE (productos->'respuesta')::jsonb @> $1",
+      [`[{"id": ${productIdToDelete}}]`]
     );
 
     if (result.rows.length === 0) {
@@ -105,10 +105,10 @@ export const eliminarPresupuestoProducto = async (req, res) => {
     );
 
     // Actualizar la base de datos con el JSON modificado
-    await pool.query("UPDATE pedido SET productos = $1 WHERE productos @> $2", [
-      { respuesta: updatedProductos },
-      `{"respuesta": [{"id": ${productIdToDelete}}]}`,
-    ]);
+    await pool.query(
+      "UPDATE pedido SET productos = $1 WHERE (productos->'respuesta')::jsonb @> $2",
+      [{ respuesta: updatedProductos }, `[{ "id": ${productIdToDelete} }]`]
+    );
 
     return res.sendStatus(204);
   } catch (error) {
