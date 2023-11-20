@@ -208,7 +208,7 @@ export const CrearProducto = async (req, res) => {
 
   try {
     const createResult = await pool.query(
-      "INSERT INTO pedido (productos) VALUES (jsonb_build_array(jsonb_build_object('id', DEFAULT, 'nombre', $1))) RETURNING *",
+      "INSERT INTO pedido (productos) VALUES (jsonb_build_array($1::jsonb)) RETURNING *",
       [nuevoValor]
     );
 
@@ -219,10 +219,31 @@ export const CrearProducto = async (req, res) => {
       nuevoRegistro,
     });
   } catch (error) {
+    // Si ocurre un error al insertar, intentaremos actualizar el producto existente
     console.error("Error durante la operación de creación de producto:", error);
-    return res.status(500).json({
-      message: "Error interno del servidor",
-      error: error.message,
-    });
+
+    try {
+      const updateResult = await pool.query(
+        "UPDATE pedido SET productos = productos || $1::jsonb WHERE (productos->'respuesta')::jsonb @> $2 RETURNING *",
+        [nuevoValor, `[{ "id": ${nuevoValor.id} }]`]
+      );
+
+      const productoActualizado = updateResult.rows[0];
+
+      return res.json({
+        message: "Producto actualizado exitosamente",
+        productoActualizado,
+      });
+    } catch (updateError) {
+      console.error(
+        "Error durante la operación de actualización de producto:",
+        updateError
+      );
+
+      return res.status(500).json({
+        message: "Error interno del servidor",
+        error: updateError.message,
+      });
+    }
   }
 };
