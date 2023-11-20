@@ -234,18 +234,25 @@ export const CrearProducto = async (req, res) => {
       });
     }
 
-    // Agregar el nuevo producto después del último elemento del array respuesta
-    const updatedRespuesta = existingJson.respuesta.concat(nuevoProducto);
+    // Verificar que el nuevo producto no sea null y sea un objeto
+    if (nuevoProducto && typeof nuevoProducto === "object") {
+      // Agregar el nuevo producto después del último elemento del array respuesta
+      const updatedRespuesta = existingJson.respuesta.concat(nuevoProducto);
 
-    // Actualizar la base de datos con el nuevo array respuesta
-    await pool.query(
-      "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1::jsonb) WHERE id = $2 RETURNING *",
-      [updatedRespuesta, tableId]
-    );
+      // Actualizar la base de datos con el nuevo array respuesta
+      await pool.query(
+        "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1::jsonb) WHERE id = $2 RETURNING *",
+        [updatedRespuesta, tableId]
+      );
 
-    return res.json({
-      message: "Producto agregado exitosamente al registro existente",
-    });
+      return res.json({
+        message: "Producto agregado exitosamente al registro existente",
+      });
+    } else {
+      return res.status(400).json({
+        message: "El nuevo producto no es un objeto válido",
+      });
+    }
   } catch (error) {
     console.error("Error durante la operación de creación de producto:", error);
     return res.status(500).json({
