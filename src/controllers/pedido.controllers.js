@@ -234,18 +234,13 @@ export const CrearProducto = async (req, res) => {
       });
     }
 
-    // Agregar el nuevo producto al array existente
-    const updatedRespuesta = [...existingJson.respuesta, nuevoProducto];
+    // Agregar el nuevo producto después del último elemento del array respuesta
+    const updatedRespuesta = existingJson.respuesta.concat(nuevoProducto);
 
-    // Construir el nuevo objeto JSON
-    const updatedJson = {
-      respuesta: updatedRespuesta,
-    };
-
-    // Actualizar la base de datos con el JSON completo
+    // Actualizar la base de datos con el nuevo array respuesta
     await pool.query(
-      "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *",
-      [updatedJson, tableId]
+      "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1::jsonb) WHERE id = $2 RETURNING *",
+      [updatedRespuesta, tableId]
     );
 
     return res.json({
