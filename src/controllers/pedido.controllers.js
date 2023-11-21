@@ -280,10 +280,10 @@ export const CrearProducto = async (req, res) => {
       });
     }
 
-    // Generar un ID aleatorio utilizando Math.random()
-    const nuevoId = Math.random().toString(36).substring(2, 15);
+    // Generar un ID aleatorio como número
+    const nuevoId = Math.floor(Math.random() * 1000000) + 1;
 
-    // Agregar el nuevo producto al array existente con el ID aleatorio
+    // Agregar el nuevo producto al array existente con el ID como número
     nuevoProducto.id = nuevoId;
     existingJson.respuesta = existingJson.respuesta || [];
     existingJson.respuesta.push(nuevoProducto);
