@@ -222,26 +222,22 @@ export const CrearProducto = async (req, res) => {
 
     const existingJson = result.rows[0].productos;
 
+    // Verificar que el nuevo producto sea un objeto válido
+    if (!nuevoProducto || typeof nuevoProducto !== "object") {
+      return res.status(400).json({
+        message: "El nuevo producto no es un objeto válido",
+        nuevoProducto: nuevoProducto,
+      });
+    }
+
     // Agregar el nuevo producto al array existente
-    const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
+    const updatedProductos = [...existingJson.respuesta, nuevoProducto];
 
     // Actualizar la base de datos con el JSON modificado
     const updateQuery =
       "UPDATE pedido SET productos = $1 WHERE id = $2 RETURNING *";
 
     await pool.query(updateQuery, [updatedProductos, tableId]);
-
-    // Verificar que el nuevo producto sea un objeto válido
-    if (
-      nuevoProducto ||
-      typeof nuevoProducto !== "object" ||
-      Array.isArray(nuevoProducto)
-    ) {
-      return res.status(400).json({
-        message: "El nuevo producto no es un objeto válido",
-        nuevoProducto: nuevoProducto,
-      });
-    }
 
     return res.json({
       message: "Producto agregado exitosamente al registro existente",
