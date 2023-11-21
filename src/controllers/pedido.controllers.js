@@ -222,8 +222,14 @@ export const CrearProducto = async (req, res) => {
 
     const existingJson = result.rows[0].productos;
 
-    // Imprimir en la consola el nuevo producto antes de la verificación
-    console.log("Nuevo Producto:", nuevoProducto);
+    // Agregar el nuevo producto al array existente
+    const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
+
+    // Actualizar la base de datos con el JSON modificado
+    const updateQuery =
+      "UPDATE pedido SET productos = $1 WHERE id = $2 RETURNING *";
+
+    await pool.query(updateQuery, [updatedProductos, tableId]);
 
     // Verificar que el nuevo producto sea un objeto válido
     if (
@@ -236,15 +242,6 @@ export const CrearProducto = async (req, res) => {
         nuevoProducto: nuevoProducto,
       });
     }
-
-    // Agregar el nuevo producto al array existente
-    const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
-
-    // Actualizar la base de datos con el JSON modificado
-    const updateQuery =
-      "UPDATE pedido SET productos = $1 WHERE id = $2 RETURNING *";
-
-    await pool.query(updateQuery, [updatedProductos, tableId]);
 
     return res.json({
       message: "Producto agregado exitosamente al registro existente",
