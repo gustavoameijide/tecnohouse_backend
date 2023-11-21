@@ -222,37 +222,28 @@ export const CrearProducto = async (req, res) => {
 
     const existingJson = result.rows[0].productos;
 
-    // Verificar que existingJson es un objeto y tiene la propiedad "respuesta" que es un array
+    // Verificar que existingJson y existingJson.respuesta son arrays válidos
     if (
-      !existingJson ||
-      !existingJson.respuesta ||
-      !Array.isArray(existingJson.respuesta)
+      !Array.isArray(existingJson) ||
+      !existingJson.every((item) => item && typeof item === "object")
     ) {
       return res.status(500).json({
         message: "La estructura del campo productos no es válida",
-        existingJson: existingJson,
       });
     }
 
-    // Verificar que el nuevo producto no sea null y sea un objeto
-    if (nuevoProducto && typeof nuevoProducto === "object") {
-      // Agregar el nuevo producto al array respuesta
-      existingJson.respuesta.push(nuevoProducto);
+    // Agregar el nuevo producto al array existente
+    const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
 
-      // Actualizar la base de datos con el nuevo array respuesta
-      await pool.query(
-        "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *",
-        [existingJson, tableId]
-      );
+    // Actualizar la base de datos con el JSON completo
+    await pool.query(
+      "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *",
+      [{ respuesta: updatedProductos }, tableId]
+    );
 
-      return res.json({
-        message: "Producto agregado exitosamente al registro existente",
-      });
-    } else {
-      return res.status(400).json({
-        message: "El nuevo producto no es un objeto válido",
-      });
-    }
+    return res.json({
+      message: "Producto agregado exitosamente al registro existente",
+    });
   } catch (error) {
     console.error("Error durante la operación de creación de producto:", error);
     return res.status(500).json({
