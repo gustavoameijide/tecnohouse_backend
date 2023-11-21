@@ -203,6 +203,56 @@ export const obtenerValorUnico = async (req, res) => {
   }
 };
 
+// export const CrearProducto = async (req, res) => {
+//   const tableId = req.params.id;
+//   const nuevoProducto = req.body.nuevoProducto;
+
+//   try {
+//     // Obtener los datos JSONB actuales de la base de datos
+//     const result = await pool.query(
+//       "SELECT productos FROM pedido WHERE id = $1",
+//       [tableId]
+//     );
+
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({
+//         message: "No existe ningún registro con ese id de tabla",
+//       });
+//     }
+
+//     const existingJson = result.rows[0].productos;
+
+//     // Verificar que el nuevo producto sea un objeto válido
+//     if (!nuevoProducto || typeof nuevoProducto !== "object") {
+//       return res.status(400).json({
+//         message: "El nuevo producto no es un objeto válido",
+//         nuevoProducto: nuevoProducto,
+//       });
+//     }
+
+//     // Agregar el nuevo producto al array existente
+//     const updatedProductos = {
+//       respuesta: [...(existingJson.respuesta || []), nuevoProducto],
+//     };
+
+//     // Actualizar la base de datos con el JSON modificado
+//     const updateQuery =
+//       "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *";
+
+//     await pool.query(updateQuery, [updatedProductos, tableId]);
+
+//     return res.json({
+//       message: "Producto agregado exitosamente al registro existente",
+//     });
+//   } catch (error) {
+//     console.error("Error durante la operación de creación de producto:", error);
+//     return res.status(500).json({
+//       message: "Error interno del servidor",
+//       error: error.message,
+//     });
+//   }
+// };
+
 export const CrearProducto = async (req, res) => {
   const tableId = req.params.id;
   const nuevoProducto = req.body.nuevoProducto;
@@ -230,19 +280,26 @@ export const CrearProducto = async (req, res) => {
       });
     }
 
-    // Agregar el nuevo producto al array existente
-    const updatedProductos = {
-      respuesta: [...(existingJson.respuesta || []), nuevoProducto],
-    };
+    // Generar un ID aleatorio utilizando Math.random()
+    const nuevoId = Math.random().toString(36).substring(2, 15);
+
+    // Agregar el nuevo producto al array existente con el ID aleatorio
+    nuevoProducto.id = nuevoId;
+    existingJson.respuesta = existingJson.respuesta || [];
+    existingJson.respuesta.push(nuevoProducto);
 
     // Actualizar la base de datos con el JSON modificado
     const updateQuery =
       "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *";
 
-    await pool.query(updateQuery, [updatedProductos, tableId]);
+    const updatedResult = await pool.query(updateQuery, [
+      { respuesta: existingJson.respuesta },
+      tableId,
+    ]);
 
     return res.json({
       message: "Producto agregado exitosamente al registro existente",
+      updatedResult: updatedResult.rows[0],
     });
   } catch (error) {
     console.error("Error durante la operación de creación de producto:", error);
