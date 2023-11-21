@@ -232,6 +232,13 @@ export const CrearProducto = async (req, res) => {
     // Agregar el nuevo producto al array existente
     const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
 
+    // Verificar que todos los elementos en updatedProductos sean objetos JSON válidos
+    if (!updatedProductos.every((item) => typeof item === "object")) {
+      return res.status(500).json({
+        message: "Uno o más elementos en el array no son objetos JSON válidos",
+      });
+    }
+
     // Actualizar la base de datos con el JSON modificado
     const updateQuery =
       "UPDATE pedido SET productos = $1 WHERE id = $2 RETURNING *";
