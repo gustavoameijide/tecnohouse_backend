@@ -227,7 +227,7 @@ export const CrearProducto = async (req, res) => {
 
     // Verificar que el nuevo producto sea un objeto válido
     if (
-      !nuevoProducto ||
+      nuevoProducto ||
       typeof nuevoProducto !== "object" ||
       Array.isArray(nuevoProducto)
     ) {
