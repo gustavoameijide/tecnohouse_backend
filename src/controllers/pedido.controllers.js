@@ -232,7 +232,7 @@ export const CrearProducto = async (req, res) => {
     // Agregar el nuevo producto al array existente
     const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
 
-    // Verificar que todos los elementos en updatedProductos sean objetos JSON válidos
+    // Verificar que el nuevo producto sea un objeto válido
     if (!nuevoProducto || typeof nuevoProducto !== "object") {
       return res.status(400).json({
         message: "El nuevo producto no es un objeto válido",
