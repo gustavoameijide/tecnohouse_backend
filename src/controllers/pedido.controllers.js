@@ -223,7 +223,7 @@ export const CrearProducto = async (req, res) => {
     const existingJson = result.rows[0].productos;
 
     // Verificar que el nuevo producto sea un objeto válido
-    if (!nuevoProducto || typeof nuevoProducto !== "object") {
+    if (typeof nuevoProducto !== "object" || nuevoProducto === null) {
       return res.status(400).json({
         message: "El nuevo producto no es un objeto válido",
         nuevoProducto: nuevoProducto,
@@ -231,7 +231,7 @@ export const CrearProducto = async (req, res) => {
     }
 
     // Agregar el nuevo producto al array existente
-    const updatedProductos = [...existingJson.respuesta, nuevoProducto];
+    const updatedProductos = [...(existingJson.respuesta || []), nuevoProducto];
 
     // Actualizar la base de datos con el JSON modificado
     const updateQuery =
