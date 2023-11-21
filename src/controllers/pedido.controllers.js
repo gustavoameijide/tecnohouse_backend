@@ -231,7 +231,9 @@ export const CrearProducto = async (req, res) => {
     }
 
     // Agregar el nuevo producto al array existente
-    const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
+    const updatedProductos = {
+      respuesta: [...(existingJson.respuesta || []), nuevoProducto],
+    };
 
     // Actualizar la base de datos con el JSON modificado
     const updateQuery =
