@@ -237,10 +237,9 @@ export const CrearProducto = async (req, res) => {
 
     // Actualizar la base de datos con el JSON completo
     await pool.query(
-      "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *",
-      [{ respuesta: updatedProductos }, tableId]
+      "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1::jsonb) WHERE id = $2 RETURNING *",
+      [updatedProductos, tableId]
     );
-
     return res.json({
       message: "Producto agregado exitosamente al registro existente",
     });
