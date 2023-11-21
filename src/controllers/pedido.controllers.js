@@ -232,25 +232,11 @@ export const CrearProducto = async (req, res) => {
     // Agregar el nuevo producto al array existente
     const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
 
-    // Convertir el array a formato JSON antes de la actualización
-    const updatedProductosJSON = JSON.stringify({
-      respuesta: updatedProductos,
-    });
-
     // Actualizar la base de datos con el JSON modificado
-    let updateQuery;
+    const updateQuery =
+      "UPDATE pedido SET productos = $1 WHERE id = $2 RETURNING *";
 
-    if (pool.jsonbSetAvailable) {
-      // Utilizar jsonb_set si está disponible
-      updateQuery =
-        "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1::jsonb) WHERE id = $2 RETURNING *";
-    } else {
-      // Utilizar la estrategia de concatenación si jsonb_set no está disponible
-      updateQuery =
-        "UPDATE pedido SET productos = productos || $1::jsonb WHERE id = $2 RETURNING *";
-    }
-
-    await pool.query(updateQuery, [updatedProductosJSON, tableId]);
+    await pool.query(updateQuery, [updatedProductos, tableId]);
 
     return res.json({
       message: "Producto agregado exitosamente al registro existente",
