@@ -233,19 +233,20 @@ export const CrearProducto = async (req, res) => {
     const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
 
     // Actualizar la base de datos con el JSON modificado
-    await pool.query(
-      "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1::jsonb) WHERE id = $2 RETURNING *",
-      [updatedProductos, tableId]
-    );
+    let updateQuery;
 
-    //  Inicializar existingJson.respuesta como un array si es null o no está definido
-    existingJson.respuesta = existingJson.respuesta || [];
-    // Verificar que existingJson es un objeto y tiene la propiedad "respuesta" que es un array
-    if (!existingJson || !Array.isArray(existingJson.respuesta)) {
-      return res.status(500).json({
-        message: "La estructura del campo productos no es válida",
-      });
+    if (pool.jsonbSetAvailable) {
+      // Utilizar jsonb_set si está disponible
+      updateQuery =
+        "UPDATE pedido SET productos = jsonb_set(productos, '{respuesta}', $1::jsonb) WHERE id = $2 RETURNING *";
+    } else {
+      // Utilizar la estrategia de concatenación si jsonb_set no está disponible
+      updateQuery =
+        "UPDATE pedido SET productos = productos || $1::jsonb WHERE id = $2 RETURNING *";
+      updatedProductos.unshift({ respuesta: [] }); // Agregar un objeto para evitar problemas de concatenación
     }
+
+    await pool.query(updateQuery, [JSON.stringify(updatedProductos), tableId]);
 
     return res.json({
       message: "Producto agregado exitosamente al registro existente",
