@@ -222,15 +222,8 @@ export const CrearProducto = async (req, res) => {
 
     const existingJson = result.rows[0].productos;
 
-    // Verificar que existingJson es un objeto y tiene la propiedad "respuesta" que es un array
-    if (!existingJson || !Array.isArray(existingJson.respuesta)) {
-      return res.status(500).json({
-        message: "La estructura del campo productos no es válida",
-      });
-    }
-
-    // Agregar el nuevo producto al array existente
-    const updatedProductos = [...(existingJson.respuesta || []), nuevoProducto];
+    // Imprimir en la consola el nuevo producto antes de la verificación
+    console.log("Nuevo Producto:", nuevoProducto);
 
     // Verificar que el nuevo producto sea un objeto válido
     if (
@@ -240,17 +233,18 @@ export const CrearProducto = async (req, res) => {
     ) {
       return res.status(400).json({
         message: "El nuevo producto no es un objeto válido",
+        nuevoProducto: nuevoProducto,
       });
     }
 
+    // Agregar el nuevo producto al array existente
+    const updatedProductos = existingJson.respuesta.concat(nuevoProducto);
+
     // Actualizar la base de datos con el JSON modificado
     const updateQuery =
-      "UPDATE pedido SET productos = $1::jsonb WHERE id = $2 RETURNING *";
+      "UPDATE pedido SET productos = $1 WHERE id = $2 RETURNING *";
 
-    await pool.query(updateQuery, [
-      JSON.stringify({ respuesta: updatedProductos }),
-      tableId,
-    ]);
+    await pool.query(updateQuery, [updatedProductos, tableId]);
 
     return res.json({
       message: "Producto agregado exitosamente al registro existente",
