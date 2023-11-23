@@ -231,18 +231,9 @@ export const obtenerValorUnico = async (req, res) => {
       });
     }
 
-    // Assuming you want to obtain the value of the "nombre" field
-    const fieldValue = product.nombre;
-
-    if (!fieldValue) {
-      return res.status(404).json({
-        message: "No existe ningún valor para el campo especificado",
-      });
-    }
-
-    // Devolver el valor específico
+    // Devolver el objeto completo del producto
     return res.json({
-      valorUnico: fieldValue,
+      producto: product,
     });
   } catch (error) {
     console.error("Error durante la operación de obtención del valor:", error);
