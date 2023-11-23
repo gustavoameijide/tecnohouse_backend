@@ -179,10 +179,10 @@ export const obtenerValorUnico = async (req, res) => {
       });
     }
 
-    const existingJson = result.rows.productos;
+    const existingJson = result.rows[0].productos;
 
     // En este ejemplo, asumiré que deseas obtener el valor del campo "nombre"
-    const fieldValue = existingJson.respuesta;
+    const fieldValue = existingJson.respuesta[0];
 
     if (!fieldValue) {
       return res.status(404).json({
