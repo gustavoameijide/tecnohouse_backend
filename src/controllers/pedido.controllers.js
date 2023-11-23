@@ -163,6 +163,45 @@ export const editarPresupuestoProducto = async (req, res) => {
   }
 };
 
+// export const obtenerValorUnico = async (req, res) => {
+//   const productId = req.params.id;
+
+//   try {
+//     // Obtener los datos JSONB actuales de la base de datos
+//     const result = await pool.query(
+//       "SELECT productos FROM pedido WHERE (productos->'respuesta')::jsonb @> $1",
+//       [`[{"id": ${productId}}]`]
+//     );
+
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({
+//         message: "No existe ningún producto con ese id",
+//       });
+//     }
+
+//     const existingJson = result.rows[0].productos;
+
+//     // En este ejemplo, asumiré que deseas obtener el valor del campo "nombre"
+//     const fieldValue = existingJson.respuesta[0];
+
+//     if (!fieldValue) {
+//       return res.status(404).json({
+//         message: "No existe ningún valor para el campo especificado",
+//       });
+//     }
+
+//     // Devolver el valor específico
+//     return res.json({
+//       valorUnico: fieldValue,
+//     });
+//   } catch (error) {
+//     console.error("Error durante la operación de obtención del valor:", error);
+//     return res.status(500).json({
+//       message: "Error interno del servidor",
+//       error: error.message,
+//     });
+//   }
+// };
 export const obtenerValorUnico = async (req, res) => {
   const productId = req.params.id;
 
@@ -181,8 +220,19 @@ export const obtenerValorUnico = async (req, res) => {
 
     const existingJson = result.rows[0].productos;
 
-    // En este ejemplo, asumiré que deseas obtener el valor del campo "nombre"
-    const fieldValue = existingJson.respuesta[0];
+    // Find the product with the specified id in the respuesta array
+    const product = existingJson.respuesta.find(
+      (item) => item.id === parseInt(productId, 10)
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        message: "No existe ningún producto con ese id",
+      });
+    }
+
+    // Assuming you want to obtain the value of the "nombre" field
+    const fieldValue = product.nombre;
 
     if (!fieldValue) {
       return res.status(404).json({
