@@ -65,6 +65,26 @@ export const actualizarPresupuesto = async (req, res) => {
   });
 };
 
+export const actualizarRemito = async (req, res) => {
+  const id = req.params.id;
+  const { remito } = req.body;
+
+  const result = await pool.query(
+    "UPDATE pedido SET remito = $1 WHERE id = $2",
+    [remito, id]
+  );
+
+  if (result.rowCount === 0) {
+    return res.status(404).json({
+      message: "No existe ningun pedido con ese id",
+    });
+  }
+
+  return res.json({
+    message: "Presupuesto actualizado",
+  });
+};
+
 //actualizar eliminar
 export const eliminarPresupuesto = async (req, res) => {
   const result = await pool.query("DELETE FROM pedido WHERE id = $1", [

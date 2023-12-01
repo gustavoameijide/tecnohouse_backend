@@ -9,6 +9,7 @@ import {
   editarPresupuestoProducto,
   obtenerValorUnico,
   CrearProducto,
+  actualizarRemito,
 } from "../controllers/pedido.controllers.js";
 import { isAuth } from "../middlewares/auth.middleware.js";
 // import { validateSchema } from "../middlewares/validate.middleware.js";
@@ -32,6 +33,8 @@ router.put("/pedido/:id", isAuth, actualizarPresupuesto);
 router.delete("/pedido-delete/:id", isAuth, eliminarPresupuestoProducto);
 
 router.put("/pedido-edit/:id", isAuth, editarPresupuestoProducto);
+
+router.put("/remito-edit/:id", isAuth, actualizarRemito);
 
 router.delete("/pedido/:id", isAuth, eliminarPresupuesto);
 
