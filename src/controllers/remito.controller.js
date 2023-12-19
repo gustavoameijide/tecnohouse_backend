@@ -38,7 +38,7 @@ export const createPresupuesto = async (req, res, next) => {
 
   try {
     const result = await pool.query(
-      "INSERT INTO pedido (cliente, productos, detalle, fecha, remito,solicitante,direccion,trasladado, user_id) VALUES ($1, $2, $3, $4, $5, $6,$7,$8,$9) RETURNING *",
+      "INSERT INTO remito (cliente, productos, detalle, fecha, remito,solicitante,direccion,trasladado, user_id) VALUES ($1, $2, $3, $4, $5, $6,$7,$8,$9) RETURNING *",
       [
         cliente,
         productos,
@@ -69,7 +69,7 @@ export const actualizarPresupuesto = async (req, res) => {
   const { productos } = req.body;
 
   const result = await pool.query(
-    "UPDATE pedido SET productos = $1 WHERE id = $2",
+    "UPDATE remito SET productos = $1 WHERE id = $2",
     [productos, id]
   );
 
@@ -89,7 +89,7 @@ export const actualizarRemito = async (req, res) => {
   const { remito } = req.body;
 
   const result = await pool.query(
-    "UPDATE pedido SET remito = $1 WHERE id = $2",
+    "UPDATE remitio SET remito = $1 WHERE id = $2",
     [remito, id]
   );
 
@@ -106,7 +106,7 @@ export const actualizarRemito = async (req, res) => {
 
 //actualizar eliminar
 export const eliminarPresupuesto = async (req, res) => {
-  const result = await pool.query("DELETE FROM pedido WHERE id = $1", [
+  const result = await pool.query("DELETE FROM remito WHERE id = $1", [
     req.params.id,
   ]);
 
