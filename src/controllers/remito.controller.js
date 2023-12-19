@@ -28,7 +28,6 @@ export const createPresupuesto = async (req, res, next) => {
   const {
     cliente,
     productos,
-    detalle,
     fecha,
     remito,
     solicitante,
@@ -38,11 +37,10 @@ export const createPresupuesto = async (req, res, next) => {
 
   try {
     const result = await pool.query(
-      "INSERT INTO remito (cliente, productos, detalle, fecha, remito,solicitante,direccion,trasladado, user_id) VALUES ($1, $2, $3, $4, $5, $6,$7,$8,$9) RETURNING *",
+      "INSERT INTO remito (cliente, productos, fecha, remito,solicitante,direccion,trasladado, user_id) VALUES ($1, $2, $3, $4, $5, $6,$7,$8) RETURNING *",
       [
         cliente,
         productos,
-        detalle,
         fecha,
         remito,
         solicitante,
