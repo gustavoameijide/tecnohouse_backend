@@ -4,6 +4,7 @@ import {
   createPresupuesto,
   getPresupuesto,
   getPresupuestos,
+  eliminarPresupuesto,
 } from "../controllers/remito.controller.js";
 import { isAuth } from "../middlewares/auth.middleware.js";
 // import { validateSchema } from "../middlewares/validate.middleware.js";
@@ -21,6 +22,8 @@ router.post(
   // validateSchema(createPedidoSchema),
   createPresupuesto
 );
+
+router.delete("/remito/:id", isAuth, eliminarPresupuesto);
 
 router.put("/remito/:id", isAuth, actualizarPresupuesto);
 
